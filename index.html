@@ -3,144 +3,156 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorting Visualizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rock Paper Scissors Game</title>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            width: 300px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .choices {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .choice {
+            cursor: pointer;
             padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            font-size: 1.2rem;
         }
         
-        .container {
-            max-width: 600px;
-            margin: auto;
+        .choice:hover {
+            background-color: #e0e0e0;
         }
         
-        .output {
-            background: #f0f0f0;
-            padding: 10px;
+        .result {
+            font-size: 1.5rem;
             margin-top: 20px;
-            white-space: pre-wrap;
-            border-radius: 5px;
+            font-weight: bold;
         }
         
-        button {
-            margin-top: 10px;
-            padding: 10px 15px;
+        .score {
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .reset {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .reset:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h2>Sorting Visualizer</h2>
-        <label for="numbers">Enter numbers (space-separated):</label><br>
-        <input type="text" id="numbers" style="width: 100%; padding: 8px;">
 
-        <label for="method">Choose sorting method:</label><br>
-        <select id="method" style="width: 100%; padding: 8px;">
-      <option value="bubble">Bubble Sort</option>
-      <option value="insertion">Insertion Sort</option>
-      <option value="selection">Selection Sort</option>
-      <option value="merge">Merge Sort</option>
-    </select>
-
-        <button onclick="sortNumbers()">Sort</button>
-
-        <div class="output" id="output"></div>
+    <div class="game-container">
+        <h1>Rock Paper Scissors</h1>
+        <div class="choices">
+            <div class="choice" id="rock">Rock</div>
+            <div class="choice" id="paper">Paper</div>
+            <div class="choice" id="scissors">Scissors</div>
+        </div>
+        <div class="result"></div>
+        <div class="score">
+            Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span>
+        </div>
+        <button class="reset" id="reset-btn">Reset Game</button>
     </div>
 
     <script>
-        function bubbleSort(arr) {
-            let steps = [];
-            let n = arr.length;
-            for (let i = 0; i < n; i++) {
-                steps.push(`Pass ${i + 1}:`);
-                for (let j = 0; j < n - i - 1; j++) {
-                    if (arr[j] > arr[j + 1]) {
-                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-                    }
-                    steps.push("  " + arr.join(" "));
-                }
-            }
-            return steps;
+        // Variables to keep track of scores
+        let playerScore = 0;
+        let computerScore = 0;
+
+        // Reference to the result display and score elements
+        const resultDisplay = document.querySelector('.result');
+        const playerScoreDisplay = document.getElementById('player-score');
+        const computerScoreDisplay = document.getElementById('computer-score');
+        const resetButton = document.getElementById('reset-btn');
+
+        // Function to get a random choice for the computer
+        function getComputerChoice() {
+            const choices = ['rock', 'paper', 'scissors'];
+            const randomChoice = choices[Math.floor(Math.random() * choices.length)];
+            return randomChoice;
         }
 
-        function insertionSort(arr) {
-            let steps = [];
-            for (let i = 1; i < arr.length; i++) {
-                steps.push(`Step ${i}:`);
-                let key = arr[i];
-                let j = i - 1;
-                while (j >= 0 && arr[j] > key) {
-                    arr[j + 1] = arr[j];
-                    j--;
-                    steps.push("  " + arr.join(" "));
-                }
-                arr[j + 1] = key;
-                steps.push("  " + arr.join(" "));
-            }
-            return steps;
-        }
+        // Function to play a single round of the game
+        function playRound(playerSelection) {
+            const computerSelection = getComputerChoice();
+            let result = '';
 
-        function selectionSort(arr) {
-            let steps = [];
-            for (let i = 0; i < arr.length; i++) {
-                let minIdx = i;
-                for (let j = i + 1; j < arr.length; j++) {
-                    if (arr[j] < arr[minIdx]) minIdx = j;
-                }
-                [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
-                steps.push(`Pass ${i + 1}: ${arr.join(" ")}`);
-            }
-            return steps;
-        }
-
-        function mergeSort(arr) {
-            let steps = [];
-
-            function merge(left, right) {
-                let result = [],
-                    i = 0,
-                    j = 0;
-                while (i < left.length && j < right.length) {
-                    if (left[i] < right[j]) {
-                        result.push(left[i++]);
-                    } else {
-                        result.push(right[j++]);
-                    }
-                }
-                return result.concat(left.slice(i)).concat(right.slice(j));
+            // Determine the winner
+            if (playerSelection === computerSelection) {
+                result = 'It\'s a tie!';
+            } else if (
+                (playerSelection === 'rock' && computerSelection === 'scissors') ||
+                (playerSelection === 'paper' && computerSelection === 'rock') ||
+                (playerSelection === 'scissors' && computerSelection === 'paper')
+            ) {
+                result = 'You win!';
+                playerScore++;
+            } else {
+                result = 'Computer wins!';
+                computerScore++;
             }
 
-            function sort(array) {
-                if (array.length < 2) return array;
-                const mid = Math.floor(array.length / 2);
-                const left = sort(array.slice(0, mid));
-                const right = sort(array.slice(mid));
-                const merged = merge(left, right);
-                steps.push("  " + merged.join(" "));
-                return merged;
-            }
-
-            sort(arr);
-            return steps;
+            // Update the display with the round result and scores
+            resultDisplay.textContent = `You chose ${playerSelection}, Computer chose ${computerSelection}. ${result}`;
+            playerScoreDisplay.textContent = playerScore;
+            computerScoreDisplay.textContent = computerScore;
         }
 
-        function sortNumbers() {
-            const input = document.getElementById("numbers").value;
-            let arr = input.split(" ").map(Number);
-            const method = document.getElementById("method").value;
-            let steps = [];
+        // Event listeners for the player's choices
+        document.getElementById('rock').addEventListener('click', () => playRound('rock'));
+        document.getElementById('paper').addEventListener('click', () => playRound('paper'));
+        document.getElementById('scissors').addEventListener('click', () => playRound('scissors'));
 
-            if (method === "bubble") steps = bubbleSort([...arr]);
-            else if (method === "insertion") steps = insertionSort([...arr]);
-            else if (method === "selection") steps = selectionSort([...arr]);
-            else if (method === "merge") steps = mergeSort([...arr]);
-
-            document.getElementById("output").innerText = steps.join("\n");
-        }
+        // Event listener to reset the game
+        resetButton.addEventListener('click', () => {
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreDisplay.textContent = playerScore;
+            computerScoreDisplay.textContent = computerScore;
+            resultDisplay.textContent = '';
+        });
     </script>
+
 </body>
 
 </html>
